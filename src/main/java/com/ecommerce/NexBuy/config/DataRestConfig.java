@@ -1,7 +1,9 @@
 package com.ecommerce.NexBuy.config;
 
+import com.ecommerce.NexBuy.entity.Country;
 import com.ecommerce.NexBuy.entity.Product;
 import com.ecommerce.NexBuy.entity.ProductCategory;
+import com.ecommerce.NexBuy.entity.Province;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -31,20 +33,14 @@ public class DataRestConfig implements RepositoryRestConfigurer {
                 .allowCredentials(false)
                 .maxAge(3600);
 
+        // List of domain types to apply the HTTP method restrictions
         HttpMethod[] unsupportedHttpActions = {HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH};
+        Class<?>[] domainTypes = {Product.class, ProductCategory.class, Country.class, Province.class};
 
-        // Disable HTTP methods for Product: POST, PUT, DELETE, PATCH
-        config.getExposureConfiguration()
-                .forDomainType(Product.class)
-                .withItemExposure((metadata, httpMethods) -> httpMethods.disable(unsupportedHttpActions))
-                .withCollectionExposure((metadata, httpMethods) -> httpMethods.disable(unsupportedHttpActions));
-
-        // Disable HTTP methods for ProductCategory: POST, PUT, DELETE, PATCH
-        config.getExposureConfiguration()
-                .forDomainType(ProductCategory.class)
-                .withItemExposure((metadata, httpMethods) -> httpMethods.disable(unsupportedHttpActions))
-                .withCollectionExposure((metadata, httpMethods) -> httpMethods.disable(unsupportedHttpActions));
-
+        // Disable HTTP methods for specified domain types
+        for (Class<?> domainType : domainTypes) {
+            disableHttpMethods(config, domainType, unsupportedHttpActions);
+        }
 
         // Expose entity IDs
         exposeIds(config);
@@ -55,4 +51,12 @@ public class DataRestConfig implements RepositoryRestConfigurer {
         Class[] entityClasses = entities.stream().map(e -> e.getJavaType()).toArray(Class[]::new);
         config.exposeIdsFor(entityClasses);
     }
+
+    private void disableHttpMethods(RepositoryRestConfiguration config, Class<?> domainType, HttpMethod[] unsupportedHttpActions) {
+        config.getExposureConfiguration()
+                .forDomainType(domainType)
+                .withItemExposure((metadata, httpMethods) -> httpMethods.disable(unsupportedHttpActions))
+                .withCollectionExposure((metadata, httpMethods) -> httpMethods.disable(unsupportedHttpActions));
+    }
+
 }
