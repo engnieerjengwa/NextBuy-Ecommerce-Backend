@@ -1,4 +1,4 @@
-package com.ecommerce.NexBuy.dao;
+package com.ecommerce.NexBuy.repo;
 
 import com.ecommerce.NexBuy.entity.Product;
 import org.springframework.data.domain.Page;

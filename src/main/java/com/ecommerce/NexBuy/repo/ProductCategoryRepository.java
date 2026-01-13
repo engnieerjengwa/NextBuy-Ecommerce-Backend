@@ -1,4 +1,4 @@
-package com.ecommerce.NexBuy.dao;
+package com.ecommerce.NexBuy.repo;
 
 import com.ecommerce.NexBuy.entity.ProductCategory;
 import org.springframework.data.jpa.repository.JpaRepository;
