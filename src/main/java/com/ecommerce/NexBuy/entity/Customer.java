@@ -2,6 +2,8 @@ package com.ecommerce.NexBuy.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +11,8 @@ import java.util.Set;
 @Entity
 @Data
 @Table(name = "customer")
+@ToString(exclude = "orders")
+@EqualsAndHashCode(exclude = "orders")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

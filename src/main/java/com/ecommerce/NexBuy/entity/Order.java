@@ -17,8 +17,8 @@ import java.util.Set;
 @Table(name = "orders")
 @Getter
 @Setter
-@ToString(exclude = {"orderItems", "customer"})
-@EqualsAndHashCode(exclude = {"orderItems", "customer"})
+@ToString(exclude = {"orderItems", "customer", "returnRequests"})
+@EqualsAndHashCode(exclude = {"orderItems", "customer", "returnRequests"})
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +36,18 @@ public class Order {
 
     @Column(name = "status")
     private String status;
+
+    @Column(name = "delivery_date")
+    private LocalDateTime deliveryDate;
+
+    @Column(name = "delivery_status")
+    private String deliveryStatus;
+
+    @Column(name = "proof_of_delivery")
+    private String proofOfDelivery;
+
+    @Column(name = "is_returned")
+    private Boolean isReturned = false;
 
     @Column(name = "date_created")
     @CreationTimestamp
@@ -56,9 +68,12 @@ public class Order {
     @JoinColumn(name = "billing_address_id", referencedColumnName = "id")
     private Address billingAddress;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "customer_id")
     private Customer customer;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    private Set<ReturnRequest> returnRequests = new HashSet<>();
 
     public void addOrderItem(OrderItem orderItem) {
         if(orderItem != null) {
@@ -67,6 +82,16 @@ public class Order {
             }
             orderItems.add(orderItem);
             orderItem.setOrder(this);
+        }
+    }
+
+    public void addReturnRequest(ReturnRequest returnRequest) {
+        if(returnRequest != null) {
+            if(returnRequests == null) {
+                returnRequests = new HashSet<>();
+            }
+            returnRequests.add(returnRequest);
+            returnRequest.setOrder(this);
         }
     }
 }

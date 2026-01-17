@@ -28,7 +28,5 @@ public class Address {
     @Column(name = "zip_code")
     private String zipCode;
 
-    @OneToOne
-    @PrimaryKeyJoinColumn
-    private Order order;
+    // Removed bidirectional relationship with Order to avoid conflicts with Order's shipping and billing address relationships
 }
