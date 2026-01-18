@@ -27,6 +27,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/orders/**").authenticated()
                 .requestMatchers("/api/checkout/purchase").authenticated()
+                .requestMatchers("/api/checkout/payment-intent").authenticated()
                 .anyRequest().permitAll())
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> {}));

@@ -1,5 +1,6 @@
 package com.ecommerce.NexBuy.service.impl;
 
+import com.ecommerce.NexBuy.dto.request.PaymentInfoRequestDto;
 import com.ecommerce.NexBuy.dto.request.PurchaseRequestDto;
 import com.ecommerce.NexBuy.dto.response.PurchaseResponseDto;
 import com.ecommerce.NexBuy.entity.Address;
@@ -8,12 +9,15 @@ import com.ecommerce.NexBuy.entity.Order;
 import com.ecommerce.NexBuy.entity.OrderItem;
 import com.ecommerce.NexBuy.repo.CustomerRepository;
 import com.ecommerce.NexBuy.service.CheckoutService;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static java.util.UUID.randomUUID;
 
@@ -23,8 +27,10 @@ public class CheckoutServiceImpl implements CheckoutService {
     private final CustomerRepository customerRepository;
 
     @Autowired
-    public CheckoutServiceImpl(CustomerRepository customerRepository) {
+    public CheckoutServiceImpl(CustomerRepository customerRepository,
+                               @Value("${stripe.key.secret}") String stripeSecretKey) {
         this.customerRepository = customerRepository;
+        Stripe.apiKey = stripeSecretKey;
     }
 
     @Override
@@ -107,6 +113,25 @@ public class CheckoutServiceImpl implements CheckoutService {
             // Rethrow as a more specific exception if needed
             throw new RuntimeException("Error processing order: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public PaymentIntent createPaymentIntent(PaymentInfoRequestDto paymentInfoRequestDto) throws StripeException {
+
+        if (paymentInfoRequestDto == null) {
+            throw new IllegalArgumentException("Payment info request cannot be null");
+        }
+
+        List<String> paymentMethods = new ArrayList<>();
+        paymentMethods.add("card");
+
+        // Create payment intent parameters
+        Map<String, Object> params = new HashMap<>();
+        params.put("amount", paymentInfoRequestDto.getAmount());
+        params.put("currency", paymentInfoRequestDto.getCurrency());
+        params.put("payment_method_types", paymentMethods);
+
+        return PaymentIntent.create(params);
     }
 
     private String generateOrderTrackingNumber() {
