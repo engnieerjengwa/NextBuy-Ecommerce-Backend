@@ -6,4 +6,5 @@ import lombok.Data;
 public class PaymentInfoRequestDto {
     private int amount;
     private String currency;
+    private String receiptEmail;
 }
