@@ -13,6 +13,8 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,9 @@ import static java.util.UUID.randomUUID;
 
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
+
+    private static final Logger logger = LoggerFactory.getLogger(CheckoutServiceImpl.class);
+    private static final List<String> PAYMENT_METHODS = Collections.singletonList("card");
 
     private final CustomerRepository customerRepository;
 
@@ -105,38 +110,35 @@ public class CheckoutServiceImpl implements CheckoutService {
             PurchaseResponseDto responseDto = new PurchaseResponseDto();
             responseDto.setOrderTrackingNumber(orderTrackingNumber);
             return responseDto;
+        } catch (IllegalArgumentException e) {
+            logger.error("Validation error while processing order: {}", e.getMessage());
+            throw e;
         } catch (Exception e) {
-            // Log the exception
-            System.err.println("Error processing order: " + e.getMessage());
-            e.printStackTrace();
-
-            // Rethrow as a more specific exception if needed
+            logger.error("Error processing order: {}", e.getMessage(), e);
             throw new RuntimeException("Error processing order: " + e.getMessage(), e);
         }
     }
 
     @Override
     public PaymentIntent createPaymentIntent(PaymentInfoRequestDto paymentInfoRequestDto) throws StripeException {
-
         if (paymentInfoRequestDto == null) {
+            logger.error("Payment info request is null");
             throw new IllegalArgumentException("Payment info request cannot be null");
         }
-
-        List<String> paymentMethods = new ArrayList<>();
-        paymentMethods.add("card");
 
         // Create payment intent parameters
         Map<String, Object> params = new HashMap<>();
         params.put("amount", paymentInfoRequestDto.getAmount());
         params.put("currency", paymentInfoRequestDto.getCurrency());
-        params.put("payment_method_types", paymentMethods);
+        params.put("payment_method_types", PAYMENT_METHODS);
         params.put("receipt_email", paymentInfoRequestDto.getReceiptEmail());
 
+        logger.debug("Creating payment intent for amount: {}, currency: {}", 
+                    paymentInfoRequestDto.getAmount(), paymentInfoRequestDto.getCurrency());
         return PaymentIntent.create(params);
     }
 
     private String generateOrderTrackingNumber() {
-        // generate a random UUID number (UUID version-4)
         return randomUUID().toString();
     }
 }
