@@ -32,7 +32,7 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             
             String formattedDate = new SimpleDateFormat("MMMM dd, yyyy").format(new Date());
-            String formattedPrice = String.format("%.2f", totalPrice);
+            String formattedPrice = "%.2f".formatted(totalPrice);
             
             String htmlContent = 
                 "<html>" +

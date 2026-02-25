@@ -28,7 +28,7 @@ class CountryProvinceRepositoryTests {
         
         // Test findById
         if (!countries.isEmpty()) {
-            Long countryId = countries.get(0).getId();
+            Long countryId = countries.getFirst().getId();
             Optional<Country> country = countryRepository.findById(countryId);
             assertTrue(country.isPresent(), "Country should be found by ID");
         }
@@ -42,7 +42,7 @@ class CountryProvinceRepositoryTests {
         
         // Test findById
         if (!provinces.isEmpty()) {
-            Long provinceId = provinces.get(0).getId();
+            Long provinceId = provinces.getFirst().getId();
             Optional<Province> province = provinceRepository.findById(provinceId);
             assertTrue(province.isPresent(), "Province should be found by ID");
         }
@@ -50,7 +50,7 @@ class CountryProvinceRepositoryTests {
         // Test findByCountryId
         List<Country> countries = countryRepository.findAll();
         if (!countries.isEmpty()) {
-            String countryCode = countries.get(0).getCode();
+            String countryCode = countries.getFirst().getCode();
             List<Province> provincesByCountry = provinceRepository.findByCountryCode(countryCode);
             assertFalse(provincesByCountry.isEmpty(), "Provinces should be found for country");
         }
