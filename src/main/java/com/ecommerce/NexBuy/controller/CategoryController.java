@@ -6,6 +6,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -111,6 +112,7 @@ public class CategoryController {
      * @return The created category
      */
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductCategory> createCategory(@RequestBody ProductCategory category) {
         ProductCategory createdCategory = categoryService.createCategory(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
@@ -123,6 +125,7 @@ public class CategoryController {
      * @return The updated category
      */
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductCategory> updateCategory(@PathVariable Long id, @RequestBody ProductCategory category) {
         try {
             ProductCategory updatedCategory = categoryService.updateCategory(id, category);
@@ -140,6 +143,7 @@ public class CategoryController {
      * @return No content if successful
      */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         try {
             categoryService.deleteCategory(id);
@@ -155,6 +159,7 @@ public class CategoryController {
      * @return No content if successful
      */
     @PutMapping("/order")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateCategoryOrder(@RequestBody List<Long> categoryIds) {
         try {
             categoryService.updateCategoryOrder(categoryIds);

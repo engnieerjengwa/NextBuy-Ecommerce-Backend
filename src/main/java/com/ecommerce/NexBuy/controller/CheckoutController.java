@@ -6,6 +6,7 @@ import com.ecommerce.NexBuy.dto.response.PurchaseResponseDto;
 import com.ecommerce.NexBuy.service.CheckoutService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class CheckoutController {
     }
 
     @PostMapping("/purchase")
-    public PurchaseResponseDto placeOrder(@RequestBody PurchaseRequestDto purchaseRequestDto) {
+    public PurchaseResponseDto placeOrder(@Valid @RequestBody PurchaseRequestDto purchaseRequestDto) {
         return checkoutService.placeOrder(purchaseRequestDto);
     }
 
