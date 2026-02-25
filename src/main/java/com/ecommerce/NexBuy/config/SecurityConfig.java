@@ -27,9 +27,18 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/api/admin/**").authenticated()
                 .requestMatchers("/api/orders/**").authenticated()
                 .requestMatchers("/api/checkout/purchase").authenticated()
                 .requestMatchers("/api/checkout/payment-intent").authenticated()
+                .requestMatchers("/api/checkout/validate-stock").permitAll()
+                .requestMatchers("/api/products/search/**").permitAll()
+                .requestMatchers("/api/products/autocomplete/**").permitAll()
+                .requestMatchers("/api/products/brands/**").permitAll()
+                .requestMatchers("/api/products/featured/**").permitAll()
+                .requestMatchers("/api/products/new-arrivals/**").permitAll()
+                .requestMatchers("/api/products/*/images").permitAll()
+                .requestMatchers("/api/products/*/variants").permitAll()
                 .anyRequest().permitAll())
             .oauth2ResourceServer(oauth2 -> oauth2
                 .jwt(jwt -> {}));

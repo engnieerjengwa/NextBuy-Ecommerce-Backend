@@ -5,6 +5,8 @@ import com.ecommerce.NexBuy.entity.Customer;
 import com.ecommerce.NexBuy.entity.Order;
 import com.ecommerce.NexBuy.entity.Product;
 import com.ecommerce.NexBuy.entity.ProductCategory;
+import com.ecommerce.NexBuy.entity.ProductImage;
+import com.ecommerce.NexBuy.entity.ProductVariant;
 import com.ecommerce.NexBuy.entity.Province;
 import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +43,7 @@ public class DataRestConfig implements RepositoryRestConfigurer {
 
         // List of domain types to apply the HTTP method restrictions
         HttpMethod[] unsupportedHttpActions = {HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH};
-        Class<?>[] domainTypes = {Product.class, ProductCategory.class, Country.class, Province.class};
+        Class<?>[] domainTypes = {Product.class, ProductCategory.class, Country.class, Province.class, ProductImage.class, ProductVariant.class};
 
         // List of domain types with read-only restrictions (GET only)
         HttpMethod[] unsupportedOrderActions = {HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH};

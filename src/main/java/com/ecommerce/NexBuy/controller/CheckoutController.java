@@ -3,6 +3,8 @@ package com.ecommerce.NexBuy.controller;
 import com.ecommerce.NexBuy.dto.request.PaymentInfoRequestDto;
 import com.ecommerce.NexBuy.dto.request.PurchaseRequestDto;
 import com.ecommerce.NexBuy.dto.response.PurchaseResponseDto;
+import com.ecommerce.NexBuy.entity.Product;
+import com.ecommerce.NexBuy.repo.ProductRepository;
 import com.ecommerce.NexBuy.service.CheckoutService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
@@ -12,15 +14,22 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/checkout")
 public class CheckoutController {
 
     private final CheckoutService checkoutService;
+    private final ProductRepository productRepository;
 
     @Autowired
-    public CheckoutController(CheckoutService checkoutService) {
+    public CheckoutController(CheckoutService checkoutService, ProductRepository productRepository) {
         this.checkoutService = checkoutService;
+        this.productRepository = productRepository;
     }
 
     @PostMapping("/purchase")
@@ -34,4 +43,41 @@ public class CheckoutController {
         String paymentStr = paymentIntent.toJson();
         return new ResponseEntity<>(paymentStr, HttpStatus.OK);
     }
+
+    /**
+     * Pre-checkout stock validation endpoint.
+     * Validates all cart items have sufficient stock before proceeding to payment.
+     */
+    @PostMapping("/validate-stock")
+    public ResponseEntity<?> validateStock(@RequestBody List<StockValidationRequest> items) {
+        List<StockValidationError> errors = new ArrayList<>();
+
+        for (StockValidationRequest item : items) {
+            Optional<Product> productOpt = productRepository.findById(item.productId());
+            if (productOpt.isEmpty()) {
+                errors.add(new StockValidationError(item.productId(), "unknown",
+                        "Product not found", 0, item.requestedQuantity()));
+            } else {
+                Product product = productOpt.get();
+                if (!product.isActive()) {
+                    errors.add(new StockValidationError(item.productId(), product.getName(),
+                            "Product is no longer available", 0, item.requestedQuantity()));
+                } else if (product.getUnitsInStock() < item.requestedQuantity()) {
+                    errors.add(new StockValidationError(item.productId(), product.getName(),
+                            "Insufficient stock", product.getUnitsInStock(), item.requestedQuantity()));
+                }
+            }
+        }
+
+        if (!errors.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("valid", false, "errors", errors));
+        }
+
+        return ResponseEntity.ok(Map.of("valid", true));
+    }
+
+    record StockValidationRequest(Long productId, int requestedQuantity) {}
+    record StockValidationError(Long productId, String productName, String message,
+                                 int availableStock, int requestedQuantity) {}
 }
