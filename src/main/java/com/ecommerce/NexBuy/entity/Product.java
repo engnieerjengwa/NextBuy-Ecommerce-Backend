@@ -91,4 +91,14 @@ public class Product {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     private List<ProductVariant> variants = new ArrayList<>();
+
+    // Phase 4: Pre-order fields (BE-37)
+    @Column(name = "is_preorder")
+    private Boolean isPreorder = false;
+
+    @Column(name = "preorder_release_date")
+    private java.time.LocalDate preorderReleaseDate;
+
+    @Column(name = "preorder_message", length = 500)
+    private String preorderMessage;
 }

@@ -55,4 +55,11 @@ public class Review {
     @Column(name = "last_updated")
     @UpdateTimestamp
     private LocalDateTime lastUpdated;
+
+    // Phase 4: Seller response fields (BE-45)
+    @Column(name = "seller_response", columnDefinition = "TEXT")
+    private String sellerResponse;
+
+    @Column(name = "seller_response_date")
+    private LocalDateTime sellerResponseDate;
 }
