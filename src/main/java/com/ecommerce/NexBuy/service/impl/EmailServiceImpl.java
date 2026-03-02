@@ -87,4 +87,53 @@ public class EmailServiceImpl implements EmailService {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void sendStockNotificationEmail(String to, String productName, Long productId) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject("NexBuy - " + productName + " is back in stock!");
+
+            String htmlContent =
+                "<html>" +
+                "<head>" +
+                "  <style>" +
+                "    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }" +
+                "    .container { max-width: 600px; margin: 0 auto; padding: 20px; }" +
+                "    .header { background-color: #0b79bf; color: white; padding: 10px; text-align: center; }" +
+                "    .content { padding: 20px; border: 1px solid #ddd; }" +
+                "    .footer { text-align: center; margin-top: 20px; font-size: 12px; color: #777; }" +
+                "    .btn { display: inline-block; padding: 12px 24px; background-color: #0b79bf; " +
+                "           color: white; text-decoration: none; border-radius: 4px; margin-top: 16px; }" +
+                "  </style>" +
+                "</head>" +
+                "<body>" +
+                "  <div class='container'>" +
+                "    <div class='header'>" +
+                "      <h2>Back in Stock!</h2>" +
+                "    </div>" +
+                "    <div class='content'>" +
+                "      <p>Good news!</p>" +
+                "      <p><strong>" + productName + "</strong> is now back in stock.</p>" +
+                "      <p>Don't miss out — stock is limited and selling fast!</p>" +
+                "      <a href='http://localhost:4200/products/" + productId + "' class='btn'>Shop Now</a>" +
+                "    </div>" +
+                "    <div class='footer'>" +
+                "      <p>&copy; " + java.time.Year.now().getValue() + " NexBuy. All rights reserved.</p>" +
+                "    </div>" +
+                "  </div>" +
+                "</body>" +
+                "</html>";
+
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            System.err.println("Failed to send stock notification email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }

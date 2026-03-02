@@ -17,4 +17,13 @@ public interface EmailService {
      */
     void sendReceiptEmail(String to, String subject, String customerName, 
                          String orderTrackingNumber, double totalPrice, int totalQuantity);
+
+    /**
+     * Send a back-in-stock notification email
+     *
+     * @param to The recipient's email address
+     * @param productName The product name that is back in stock
+     * @param productId The product ID
+     */
+    void sendStockNotificationEmail(String to, String productName, Long productId);
 }

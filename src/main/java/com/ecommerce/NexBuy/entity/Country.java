@@ -1,6 +1,5 @@
 package com.ecommerce.NexBuy.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 

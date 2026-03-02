@@ -7,7 +7,10 @@ import com.ecommerce.NexBuy.repo.ProductCategoryRepository;
 import com.ecommerce.NexBuy.repo.ProductImageRepository;
 import com.ecommerce.NexBuy.repo.ProductRepository;
 import com.ecommerce.NexBuy.service.ProductAdminService;
+import com.ecommerce.NexBuy.service.StockNotificationService;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,16 +20,21 @@ import java.util.List;
 @Service
 public class ProductAdminServiceImpl implements ProductAdminService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductAdminServiceImpl.class);
+
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
     private final ProductImageRepository productImageRepository;
+    private final StockNotificationService stockNotificationService;
 
     public ProductAdminServiceImpl(ProductRepository productRepository,
                                     ProductCategoryRepository productCategoryRepository,
-                                    ProductImageRepository productImageRepository) {
+                                    ProductImageRepository productImageRepository,
+                                    StockNotificationService stockNotificationService) {
         this.productRepository = productRepository;
         this.productCategoryRepository = productCategoryRepository;
         this.productImageRepository = productImageRepository;
+        this.stockNotificationService = stockNotificationService;
     }
 
     @Override
@@ -80,6 +88,8 @@ public class ProductAdminServiceImpl implements ProductAdminService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Product not found with ID: " + id));
 
+        int oldStock = product.getUnitsInStock();
+
         if (request.name() != null) product.setName(request.name());
         if (request.sku() != null) product.setSku(request.sku());
         if (request.description() != null) product.setDescription(request.description());
@@ -123,7 +133,16 @@ public class ProductAdminServiceImpl implements ProductAdminService {
             }
         }
 
-        return productRepository.save(product);
+        Product savedProduct = productRepository.save(product);
+
+        // Auto-trigger back-in-stock notifications when stock goes from 0 to positive
+        int newStock = savedProduct.getUnitsInStock();
+        if (oldStock <= 0 && newStock > 0) {
+            logger.info("Product {} restocked (0 -> {}), triggering back-in-stock notifications", id, newStock);
+            stockNotificationService.notifySubscribers(id);
+        }
+
+        return savedProduct;
     }
 
     @Override

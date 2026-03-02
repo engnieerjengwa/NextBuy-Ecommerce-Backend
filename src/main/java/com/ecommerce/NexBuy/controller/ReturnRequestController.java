@@ -3,7 +3,6 @@ package com.ecommerce.NexBuy.controller;
 import com.ecommerce.NexBuy.dto.request.ReturnRequestRequestDto;
 import com.ecommerce.NexBuy.dto.response.ReturnRequestResponseDto;
 import com.ecommerce.NexBuy.service.ReturnRequestService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,6 @@ public class ReturnRequestController {
 
     private final ReturnRequestService returnRequestService;
 
-    @Autowired
     public ReturnRequestController(ReturnRequestService returnRequestService) {
         this.returnRequestService = returnRequestService;
     }

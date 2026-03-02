@@ -3,7 +3,6 @@ package com.ecommerce.NexBuy.controller;
 import com.ecommerce.NexBuy.entity.HeroBanner;
 import com.ecommerce.NexBuy.service.HeroBannerService;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +18,6 @@ public class HeroBannerController {
 
     private final HeroBannerService heroBannerService;
 
-    @Autowired
     public HeroBannerController(HeroBannerService heroBannerService) {
         this.heroBannerService = heroBannerService;
     }

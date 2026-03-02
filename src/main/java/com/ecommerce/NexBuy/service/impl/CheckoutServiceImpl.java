@@ -1,6 +1,7 @@
 package com.ecommerce.NexBuy.service.impl;
 
 import com.ecommerce.NexBuy.dto.request.AddressRequestDto;
+import com.ecommerce.NexBuy.dto.request.GuestCheckoutRequestDto;
 import com.ecommerce.NexBuy.dto.request.OrderItemRequestDto;
 import com.ecommerce.NexBuy.dto.request.PaymentInfoRequestDto;
 import com.ecommerce.NexBuy.dto.request.PurchaseRequestDto;
@@ -200,6 +201,117 @@ public class CheckoutServiceImpl implements CheckoutService {
         logger.debug("Creating payment intent for amount: {}, currency: {}", 
                     paymentInfoRequestDto.getAmount(), paymentInfoRequestDto.getCurrency());
         return PaymentIntent.create(params);
+    }
+
+    @Override
+    @Transactional
+    public PurchaseResponseDto placeGuestOrder(GuestCheckoutRequestDto guestDto) {
+        try {
+            if (guestDto == null) {
+                throw new IllegalArgumentException("Guest checkout request cannot be null");
+            }
+
+            // Create order
+            Order order = new Order();
+            order.setTotalPrice(guestDto.getTotalPrice());
+            order.setTotalQuantity(guestDto.getTotalQuantity());
+            order.setStatus("PROCESSING");
+
+            String orderTrackingNumber = generateOrderTrackingNumber();
+            order.setOrderTrackingNumber(orderTrackingNumber);
+
+            // Map order items and decrement stock
+            Set<OrderItemRequestDto> orderItemDtos = guestDto.getOrderItems();
+            if (orderItemDtos == null || orderItemDtos.isEmpty()) {
+                throw new IllegalArgumentException("Order items cannot be null or empty");
+            }
+
+            for (OrderItemRequestDto itemDto : orderItemDtos) {
+                OrderItem orderItem = new OrderItem();
+                orderItem.setImageUrl(itemDto.getImageUrl());
+                orderItem.setUnitPrice(itemDto.getUnitPrice());
+                orderItem.setQuantity(itemDto.getQuantity());
+                orderItem.setProductId(itemDto.getProductId());
+                order.addOrderItem(orderItem);
+
+                Product product = productRepository.findById(itemDto.getProductId())
+                        .orElseThrow(() -> new IllegalArgumentException(
+                                "Product not found with ID: " + itemDto.getProductId()));
+
+                if (product.getUnitsInStock() < itemDto.getQuantity()) {
+                    throw new IllegalArgumentException(
+                            "Insufficient stock for product: " + product.getName()
+                                    + ". Available: " + product.getUnitsInStock()
+                                    + ", Requested: " + itemDto.getQuantity());
+                }
+
+                product.setUnitsInStock(product.getUnitsInStock() - itemDto.getQuantity());
+                productRepository.save(product);
+            }
+
+            // Map addresses
+            Address shippingAddress = mapAddress(guestDto.getShippingAddress());
+            Address billingAddress = mapAddress(guestDto.getBillingAddress());
+
+            if (shippingAddress == null) {
+                throw new IllegalArgumentException("Shipping address cannot be null");
+            }
+            if (billingAddress == null) {
+                throw new IllegalArgumentException("Billing address cannot be null");
+            }
+
+            order.setShippingAddress(shippingAddress);
+            order.setBillingAddress(billingAddress);
+
+            // Find or create customer from guest data
+            String email = guestDto.getEmail();
+            Customer customer = customerRepository.findByEmail(email);
+
+            if (customer != null) {
+                customer.setFirstName(guestDto.getFirstName());
+                customer.setLastName(guestDto.getLastName());
+                customer.addOrder(order);
+            } else {
+                customer = new Customer();
+                customer.setFirstName(guestDto.getFirstName());
+                customer.setLastName(guestDto.getLastName());
+                customer.setEmail(email);
+                customer.setMobileNumber(guestDto.getMobileNumber());
+                customer.addOrder(order);
+            }
+
+            customerRepository.save(customer);
+
+            // Send confirmation email
+            try {
+                String customerName = customer.getFirstName() + " " + customer.getLastName();
+                double totalPrice = guestDto.getTotalPrice() != null
+                        ? guestDto.getTotalPrice().doubleValue() : 0.0;
+                int totalQuantity = guestDto.getTotalQuantity();
+
+                emailService.sendReceiptEmail(
+                        email,
+                        "NexBuy - Order Confirmation #" + orderTrackingNumber,
+                        customerName,
+                        orderTrackingNumber,
+                        totalPrice,
+                        totalQuantity
+                );
+                logger.info("Guest order confirmation email sent to: {}", email);
+            } catch (Exception e) {
+                logger.error("Failed to send guest order confirmation email to {}: {}", email, e.getMessage());
+            }
+
+            PurchaseResponseDto responseDto = new PurchaseResponseDto();
+            responseDto.setOrderTrackingNumber(orderTrackingNumber);
+            return responseDto;
+        } catch (IllegalArgumentException e) {
+            logger.error("Validation error while processing guest order: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error processing guest order: {}", e.getMessage(), e);
+            throw new RuntimeException("Error processing guest order: " + e.getMessage(), e);
+        }
     }
 
     private Address mapAddress(AddressRequestDto dto) {

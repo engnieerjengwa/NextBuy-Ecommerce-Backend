@@ -1,5 +1,6 @@
 package com.ecommerce.NexBuy.controller;
 
+import com.ecommerce.NexBuy.dto.request.GuestCheckoutRequestDto;
 import com.ecommerce.NexBuy.dto.request.PaymentInfoRequestDto;
 import com.ecommerce.NexBuy.dto.request.PurchaseRequestDto;
 import com.ecommerce.NexBuy.dto.response.PurchaseResponseDto;
@@ -9,10 +10,12 @@ import com.ecommerce.NexBuy.service.CheckoutService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,6 @@ public class CheckoutController {
     private final CheckoutService checkoutService;
     private final ProductRepository productRepository;
 
-    @Autowired
     public CheckoutController(CheckoutService checkoutService, ProductRepository productRepository) {
         this.checkoutService = checkoutService;
         this.productRepository = productRepository;
@@ -75,6 +77,16 @@ public class CheckoutController {
         }
 
         return ResponseEntity.ok(Map.of("valid", true));
+    }
+
+    /**
+     * Guest checkout — place an order without authentication
+     */
+    @PostMapping("/guest")
+    public ResponseEntity<PurchaseResponseDto> placeGuestOrder(
+            @Valid @RequestBody GuestCheckoutRequestDto guestCheckoutRequestDto) {
+        PurchaseResponseDto responseDto = checkoutService.placeGuestOrder(guestCheckoutRequestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     record StockValidationRequest(Long productId, int requestedQuantity) {}
