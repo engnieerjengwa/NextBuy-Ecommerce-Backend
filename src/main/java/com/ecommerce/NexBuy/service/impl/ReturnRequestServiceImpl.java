@@ -11,8 +11,11 @@ import com.ecommerce.NexBuy.repo.OrderItemRepository;
 import com.ecommerce.NexBuy.repo.OrderRepository;
 import com.ecommerce.NexBuy.repo.ReturnRequestRepository;
 import com.ecommerce.NexBuy.service.ReturnRequestService;
+import com.ecommerce.NexBuy.service.StripeRefundService;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,20 +27,25 @@ import java.time.LocalDateTime;
 @Service
 public class ReturnRequestServiceImpl implements ReturnRequestService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ReturnRequestServiceImpl.class);
+
     private final ReturnRequestRepository returnRequestRepository;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ModelMapper modelMapper;
+    private final StripeRefundService stripeRefundService;
 
     @Autowired
     public ReturnRequestServiceImpl(ReturnRequestRepository returnRequestRepository,
                                    OrderRepository orderRepository,
                                    OrderItemRepository orderItemRepository,
-                                   ModelMapper modelMapper) {
+                                   ModelMapper modelMapper,
+                                   StripeRefundService stripeRefundService) {
         this.returnRequestRepository = returnRequestRepository;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.modelMapper = modelMapper;
+        this.stripeRefundService = stripeRefundService;
     }
 
     @Override
@@ -160,6 +168,25 @@ public class ReturnRequestServiceImpl implements ReturnRequestService {
         }
 
         returnRequest.setStatus(status);
+
+        // Process Stripe refund when return is approved
+        if ("APPROVED".equals(status)) {
+            Order order = returnRequest.getOrder();
+            String paymentIntentId = order.getPaymentIntentId();
+
+            if (paymentIntentId != null && !paymentIntentId.isBlank()) {
+                try {
+                    String refundId = stripeRefundService.processRefund(paymentIntentId, order.getTotalPrice());
+                    logger.info("Refund processed for return request {}, Stripe refund ID: {}", id, refundId);
+                } catch (Exception e) {
+                    logger.error("Failed to process Stripe refund for return request {}: {}", id, e.getMessage(), e);
+                    // Still approve the return, refund can be processed manually
+                }
+            } else {
+                logger.warn("No payment intent ID found for order {}. Refund must be processed manually.", order.getId());
+            }
+        }
+
         ReturnRequest updatedReturnRequest = returnRequestRepository.save(returnRequest);
 
         ReturnRequestResponseDto responseDto = modelMapper.map(updatedReturnRequest, ReturnRequestResponseDto.class);

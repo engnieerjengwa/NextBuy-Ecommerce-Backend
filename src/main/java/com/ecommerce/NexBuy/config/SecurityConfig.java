@@ -79,6 +79,33 @@ public class SecurityConfig {
                 // Product Q&A - auth required for write operations
                 .requestMatchers(HttpMethod.POST, "/api/products/*/questions").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/questions/*/answers").authenticated()
+                // Coupons - validate is public, apply requires auth
+                .requestMatchers(HttpMethod.POST, "/api/coupons/validate").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/coupons/apply").authenticated()
+                // Deals - public
+                .requestMatchers(HttpMethod.GET, "/api/deals/**").permitAll()
+                // Invoice - auth required
+                .requestMatchers("/api/orders/*/invoice").authenticated()
+                // Recently Viewed - auth required
+                .requestMatchers("/api/recently-viewed/**").authenticated()
+                // Newsletter - public
+                .requestMatchers("/api/newsletter/**").permitAll()
+                // Gift Cards - check is public, purchase/redeem/my-cards require auth
+                .requestMatchers(HttpMethod.GET, "/api/gift-cards/check/**").permitAll()
+                .requestMatchers("/api/gift-cards/**").authenticated()
+                // Wallet - auth required
+                .requestMatchers("/api/wallet/**").authenticated()
+                // Loyalty - auth required
+                .requestMatchers("/api/loyalty/**").authenticated()
+                // Referrals - auth required
+                .requestMatchers("/api/referrals/**").authenticated()
+                // PreOrders - list/status is public, place requires auth
+                .requestMatchers(HttpMethod.GET, "/api/preorders/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/preorders/**").authenticated()
+                // Frequently Bought Together - public
+                .requestMatchers(HttpMethod.GET, "/api/products/*/frequently-bought-together").permitAll()
+                // Review seller response - admin only (handled via @PreAuthorize)
+                .requestMatchers(HttpMethod.POST, "/api/reviews/*/respond").hasRole("ADMIN")
                 // Public endpoints
                 .requestMatchers(HttpMethod.GET, "/api/products/*/reviews/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/reviews/*/helpful").permitAll()

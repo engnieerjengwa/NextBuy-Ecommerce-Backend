@@ -24,7 +24,6 @@ public class SavedAddressServiceImpl implements SavedAddressService {
     private final SavedAddressRepository savedAddressRepository;
     private final CustomerRepository customerRepository;
 
-    @Autowired
     public SavedAddressServiceImpl(SavedAddressRepository savedAddressRepository,
                                    CustomerRepository customerRepository) {
         this.savedAddressRepository = savedAddressRepository;

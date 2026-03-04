@@ -70,6 +70,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             order.setTotalPrice(orderSummary.getTotalPrice());
             order.setTotalQuantity(orderSummary.getTotalQuantity());
             order.setStatus("PROCESSING");
+            order.setPaymentIntentId(orderSummary.getPaymentIntentId());
 
             // Generate tracking number
             String orderTrackingNumber = generateOrderTrackingNumber();
@@ -191,12 +192,25 @@ public class CheckoutServiceImpl implements CheckoutService {
             throw new IllegalArgumentException("Payment info request cannot be null");
         }
 
+        if (paymentInfoRequestDto.getAmount() <= 0) {
+            throw new IllegalArgumentException("Payment amount must be greater than zero");
+        }
+
+        String currency = paymentInfoRequestDto.getCurrency();
+        if (currency == null || currency.trim().isEmpty()) {
+            throw new IllegalArgumentException("Currency cannot be null or empty");
+        }
+
         // Create payment intent parameters
         Map<String, Object> params = new HashMap<>();
         params.put("amount", paymentInfoRequestDto.getAmount());
         params.put("currency", paymentInfoRequestDto.getCurrency());
         params.put("payment_method_types", PAYMENT_METHODS);
-        params.put("receipt_email", paymentInfoRequestDto.getReceiptEmail());
+
+        String receiptEmail = paymentInfoRequestDto.getReceiptEmail();
+        if (receiptEmail != null && !receiptEmail.trim().isEmpty()) {
+            params.put("receipt_email", receiptEmail.trim());
+        }
 
         logger.debug("Creating payment intent for amount: {}, currency: {}", 
                     paymentInfoRequestDto.getAmount(), paymentInfoRequestDto.getCurrency());

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -149,6 +150,20 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
+    public ReviewResponseDto respondToReview(Long reviewId, String response) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("Review not found with ID: " + reviewId));
+
+        review.setSellerResponse(response);
+        review.setSellerResponseDate(LocalDateTime.now());
+        Review updatedReview = reviewRepository.save(review);
+
+        logger.info("Seller response added to review {}", reviewId);
+        return mapToResponseDto(updatedReview);
+    }
+
+    @Override
     public RatingDistributionResponseDto getRatingDistribution(Long productId) {
         Double avgRating = reviewRepository.findAverageRatingByProductId(productId);
         Long totalReviews = reviewRepository.countByProductId(productId);
@@ -214,6 +229,8 @@ public class ReviewServiceImpl implements ReviewService {
         dto.setIsVerifiedPurchase(review.getIsVerifiedPurchase());
         dto.setHelpfulCount(review.getHelpfulCount());
         dto.setDateCreated(review.getDateCreated());
+        dto.setSellerResponse(review.getSellerResponse());
+        dto.setSellerResponseDate(review.getSellerResponseDate());
         return dto;
     }
 }

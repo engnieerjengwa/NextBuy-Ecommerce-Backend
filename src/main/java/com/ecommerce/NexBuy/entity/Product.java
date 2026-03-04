@@ -101,4 +101,11 @@ public class Product {
 
     @Column(name = "preorder_message", length = 500)
     private String preorderMessage;
+
+    // Seller location for delivery cost calculation
+    @Column(name = "seller_province")
+    private String sellerProvince = "Harare";
+
+    @Column(name = "seller_city")
+    private String sellerCity = "Harare";
 }

@@ -19,4 +19,6 @@ public class ReviewResponseDto {
     private Boolean isVerifiedPurchase;
     private Integer helpfulCount;
     private LocalDateTime dateCreated;
+    private String sellerResponse;
+    private LocalDateTime sellerResponseDate;
 }

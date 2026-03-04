@@ -41,5 +41,7 @@ public class PurchaseRequestDto {
         private BigDecimal totalPrice;
 
         private int totalQuantity;
+
+        private String paymentIntentId;
     }
 }

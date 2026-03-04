@@ -2,11 +2,12 @@ package com.ecommerce.NexBuy.service.impl;
 
 import com.ecommerce.NexBuy.dto.request.PaymentInfoRequestDto;
 import com.ecommerce.NexBuy.repo.CustomerRepository;
+import com.ecommerce.NexBuy.repo.ProductRepository;
+import com.ecommerce.NexBuy.service.EmailService;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -18,13 +19,19 @@ class CheckoutServiceImplPaymentTests {
     @Mock
     private CustomerRepository customerRepository;
 
+    @Mock
+    private ProductRepository productRepository;
+
+    @Mock
+    private EmailService emailService;
+
     private CheckoutServiceImpl checkoutService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
         // Create service with constructor injection
-        checkoutService = new CheckoutServiceImpl(customerRepository, "sk_test_mockKey");
+        checkoutService = new CheckoutServiceImpl(customerRepository, productRepository, emailService, "sk_test_mockKey");
     }
 
     @Test

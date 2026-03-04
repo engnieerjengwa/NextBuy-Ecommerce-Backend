@@ -22,5 +22,7 @@ public interface ReviewService {
 
     void markReviewHelpful(Long reviewId);
 
+    ReviewResponseDto respondToReview(Long reviewId, String response);
+
     RatingDistributionResponseDto getRatingDistribution(Long productId);
 }

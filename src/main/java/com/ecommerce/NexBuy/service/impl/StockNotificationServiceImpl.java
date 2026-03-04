@@ -25,7 +25,6 @@ public class StockNotificationServiceImpl implements StockNotificationService {
     private final ProductRepository productRepository;
     private final EmailService emailService;
 
-    @Autowired
     public StockNotificationServiceImpl(StockNotificationRepository stockNotificationRepository,
                                         ProductRepository productRepository,
                                         EmailService emailService) {

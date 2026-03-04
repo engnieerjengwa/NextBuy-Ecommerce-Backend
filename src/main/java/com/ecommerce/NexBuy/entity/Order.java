@@ -46,6 +46,9 @@ public class Order {
     @Column(name = "proof_of_delivery")
     private String proofOfDelivery;
 
+    @Column(name = "payment_intent_id")
+    private String paymentIntentId;
+
     @Column(name = "is_returned")
     private Boolean isReturned = false;
 

@@ -1,6 +1,7 @@
 package com.ecommerce.NexBuy.controller;
 
 import com.ecommerce.NexBuy.dto.request.ReviewRequestDto;
+import com.ecommerce.NexBuy.dto.request.ReviewResponseRequestDto;
 import com.ecommerce.NexBuy.dto.response.RatingDistributionResponseDto;
 import com.ecommerce.NexBuy.dto.response.ReviewResponseDto;
 import com.ecommerce.NexBuy.security.UserDetailsImpl;
@@ -112,5 +113,17 @@ public class ReviewController {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         Page<ReviewResponseDto> reviews = reviewService.getReviewsByCustomerId(userDetails.getId(), pageable);
         return ResponseEntity.ok(reviews);
+    }
+
+    /**
+     * Add a seller response to a review (admin/seller only)
+     */
+    @PostMapping("/reviews/{reviewId}/respond")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ReviewResponseDto> respondToReview(
+            @PathVariable Long reviewId,
+            @Valid @RequestBody ReviewResponseRequestDto request) {
+        ReviewResponseDto review = reviewService.respondToReview(reviewId, request.getResponse());
+        return ResponseEntity.ok(review);
     }
 }
