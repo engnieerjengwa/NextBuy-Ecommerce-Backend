@@ -10,6 +10,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Loyalty", description = "Loyalty rewards program and points redemption")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api/loyalty")
 public class LoyaltyController {
@@ -20,6 +26,7 @@ public class LoyaltyController {
         this.loyaltyService = loyaltyService;
     }
 
+    @Operation(summary = "Get loyalty status", description = "Retrieve the loyalty points balance and tier for the authenticated user")
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<LoyaltyResponseDto> getLoyaltyStatus(Authentication authentication) {
@@ -28,6 +35,7 @@ public class LoyaltyController {
         return ResponseEntity.ok(status);
     }
 
+    @Operation(summary = "Redeem loyalty points", description = "Redeem accumulated loyalty points for store credit")
     @PostMapping("/redeem")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<LoyaltyResponseDto> redeemPoints(

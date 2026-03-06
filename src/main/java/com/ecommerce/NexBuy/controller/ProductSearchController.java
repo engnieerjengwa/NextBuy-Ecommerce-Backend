@@ -10,9 +10,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.math.BigDecimal;
 import java.util.List;
 
+@Tag(name = "Products", description = "Product search, filtering, and catalog browsing")
 @RestController
 @RequestMapping("/api/products")
 @CrossOrigin
@@ -30,6 +34,7 @@ public class ProductSearchController {
         this.productVariantRepository = productVariantRepository;
     }
 
+    @Operation(summary = "Search products", description = "Full-text search with filters for brand, category, price range, rating, and stock")
     @GetMapping("/search")
     public ResponseEntity<Page<ProductSearchDto>> searchProducts(
             @RequestParam(required = false) String q,
@@ -50,6 +55,7 @@ public class ProductSearchController {
         return ResponseEntity.ok(results);
     }
 
+    @Operation(summary = "Autocomplete product search", description = "Returns quick suggestions as the user types")
     @GetMapping("/autocomplete")
     public ResponseEntity<List<ProductSearchDto>> autocomplete(
             @RequestParam String q,
@@ -57,12 +63,14 @@ public class ProductSearchController {
         return ResponseEntity.ok(productSearchService.autocomplete(q, limit));
     }
 
+    @Operation(summary = "Get available brands", description = "List all brands, optionally filtered by category")
     @GetMapping("/brands")
     public ResponseEntity<List<String>> getBrands(
             @RequestParam(required = false) Long categoryId) {
         return ResponseEntity.ok(productSearchService.getAvailableBrands(categoryId));
     }
 
+    @Operation(summary = "Get product images", description = "Retrieve all images for a product ordered by display order")
     @GetMapping("/{id}/images")
     public ResponseEntity<List<ProductImageDto>> getProductImages(@PathVariable Long id) {
         List<ProductImage> images = productImageRepository.findByProductIdOrderByDisplayOrderAsc(id);
@@ -73,6 +81,7 @@ public class ProductSearchController {
         return ResponseEntity.ok(dtos);
     }
 
+    @Operation(summary = "Get product variants", description = "Retrieve active variants (size, color, etc.) for a product")
     @GetMapping("/{id}/variants")
     public ResponseEntity<List<ProductVariantDto>> getProductVariants(@PathVariable Long id) {
         List<ProductVariant> variants = productVariantRepository.findByProductIdAndIsActiveTrue(id);
@@ -83,6 +92,7 @@ public class ProductSearchController {
         return ResponseEntity.ok(dtos);
     }
 
+    @Operation(summary = "Get featured products", description = "Retrieve top-rated in-stock products")
     @GetMapping("/featured")
     public ResponseEntity<Page<ProductSearchDto>> getFeaturedProducts(
             @RequestParam(defaultValue = "0") int page,
@@ -91,6 +101,7 @@ public class ProductSearchController {
                 null, null, null, null, null, true, new BigDecimal("4.0"), null, "rating", page, size));
     }
 
+    @Operation(summary = "Get new arrivals", description = "Retrieve recently added products")
     @GetMapping("/new-arrivals")
     public ResponseEntity<Page<ProductSearchDto>> getNewArrivals(
             @RequestParam(defaultValue = "0") int page,

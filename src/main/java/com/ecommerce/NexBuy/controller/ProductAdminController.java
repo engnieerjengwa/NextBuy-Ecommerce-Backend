@@ -12,6 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Admin Products", description = "Product CRUD management (admin only)")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api/admin/products")
 @CrossOrigin
@@ -23,6 +29,7 @@ public class ProductAdminController {
         this.productAdminService = productAdminService;
     }
 
+    @Operation(summary = "List all products", description = "Retrieve a paginated list of all products (admin only)")
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<Product>> getAllProducts(
@@ -38,12 +45,14 @@ public class ProductAdminController {
         return ResponseEntity.ok(productAdminService.getAllProducts(PageRequest.of(page, size, sort)));
     }
 
+    @Operation(summary = "Get product", description = "Retrieve a product by ID (admin only)")
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> getProduct(@PathVariable Long id) {
         return ResponseEntity.ok(productAdminService.getProduct(id));
     }
 
+    @Operation(summary = "Create product", description = "Create a new product (admin only)")
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> createProduct(@RequestBody ProductCreateRequest request) {
@@ -51,6 +60,7 @@ public class ProductAdminController {
         return ResponseEntity.status(HttpStatus.CREATED).body(product);
     }
 
+    @Operation(summary = "Update product", description = "Update an existing product (admin only)")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Product> updateProduct(@PathVariable Long id,
@@ -59,6 +69,7 @@ public class ProductAdminController {
         return ResponseEntity.ok(product);
     }
 
+    @Operation(summary = "Delete product", description = "Delete a product by ID (admin only)")
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {

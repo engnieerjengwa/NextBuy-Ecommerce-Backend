@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Preorders", description = "Product preorder and backorder management")
 @RestController
 @RequestMapping("/api/preorders")
 public class PreOrderController {
@@ -22,18 +26,21 @@ public class PreOrderController {
         this.preOrderService = preOrderService;
     }
 
+    @Operation(summary = "Get preorder products", description = "Retrieve paginated list of products available for preorder")
     @GetMapping
     public ResponseEntity<Page<Map<String, Object>>> getPreOrderProducts(Pageable pageable) {
         Page<Map<String, Object>> products = preOrderService.getPreOrderProducts(pageable);
         return ResponseEntity.ok(products);
     }
 
+    @Operation(summary = "Get preorder status", description = "Check the preorder availability status of a product")
     @GetMapping("/{productId}/status")
     public ResponseEntity<Map<String, Object>> getPreOrderStatus(@PathVariable Long productId) {
         Map<String, Object> status = preOrderService.getPreOrderStatus(productId);
         return ResponseEntity.ok(status);
     }
 
+    @Operation(summary = "Place preorder", description = "Submit a preorder for a product not yet in stock")
     @PostMapping("/{productId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponseDto> placePreOrder(

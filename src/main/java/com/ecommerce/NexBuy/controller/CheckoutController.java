@@ -17,11 +17,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@Tag(name = "Checkout", description = "Order placement, payment processing, and guest checkout")
 @RestController
 @RequestMapping("/api/checkout")
 public class CheckoutController {
@@ -34,11 +38,13 @@ public class CheckoutController {
         this.productRepository = productRepository;
     }
 
+    @Operation(summary = "Place order", description = "Submit an authenticated order with payment")
     @PostMapping("/purchase")
     public PurchaseResponseDto placeOrder(@Valid @RequestBody PurchaseRequestDto purchaseRequestDto) {
         return checkoutService.placeOrder(purchaseRequestDto);
     }
 
+    @Operation(summary = "Create payment intent", description = "Create a Stripe payment intent for checkout")
     @PostMapping("/payment-intent")
     public ResponseEntity<String> createPaymentIntent(@RequestBody PaymentInfoRequestDto paymentInfoRequestDto) throws StripeException {
         PaymentIntent paymentIntent = checkoutService.createPaymentIntent(paymentInfoRequestDto);
@@ -46,10 +52,7 @@ public class CheckoutController {
         return new ResponseEntity<>(paymentStr, HttpStatus.OK);
     }
 
-    /**
-     * Pre-checkout stock validation endpoint.
-     * Validates all cart items have sufficient stock before proceeding to payment.
-     */
+    @Operation(summary = "Validate stock", description = "Pre-checkout stock validation for all cart items")
     @PostMapping("/validate-stock")
     public ResponseEntity<?> validateStock(@RequestBody List<StockValidationRequest> items) {
         List<StockValidationError> errors = new ArrayList<>();
@@ -79,9 +82,7 @@ public class CheckoutController {
         return ResponseEntity.ok(Map.of("valid", true));
     }
 
-    /**
-     * Guest checkout — place an order without authentication
-     */
+    @Operation(summary = "Guest checkout", description = "Place an order without authentication")
     @PostMapping("/guest")
     public ResponseEntity<PurchaseResponseDto> placeGuestOrder(
             @Valid @RequestBody GuestCheckoutRequestDto guestCheckoutRequestDto) {

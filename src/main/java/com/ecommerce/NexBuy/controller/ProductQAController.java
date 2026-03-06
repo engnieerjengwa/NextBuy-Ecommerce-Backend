@@ -15,6 +15,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Product Q&A", description = "Product questions and community answers")
 @RestController
 @RequestMapping("/api")
 public class ProductQAController {
@@ -25,9 +29,7 @@ public class ProductQAController {
         this.productQAService = productQAService;
     }
 
-    /**
-     * Get Q&A for a product (public, paginated)
-     */
+    @Operation(summary = "Get product questions", description = "Retrieve paginated Q&A for a product")
     @GetMapping("/products/{productId}/questions")
     public ResponseEntity<Page<ProductQuestionResponseDto>> getQuestions(
             @PathVariable Long productId, Pageable pageable) {
@@ -35,9 +37,7 @@ public class ProductQAController {
         return ResponseEntity.ok(questions);
     }
 
-    /**
-     * Ask a question about a product (auth required)
-     */
+    @Operation(summary = "Ask question", description = "Submit a new question about a product")
     @PostMapping("/products/{productId}/questions")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProductQuestionResponseDto> askQuestion(
@@ -50,9 +50,7 @@ public class ProductQAController {
         return new ResponseEntity<>(question, HttpStatus.CREATED);
     }
 
-    /**
-     * Submit an answer to a question (auth required)
-     */
+    @Operation(summary = "Answer question", description = "Submit an answer to a product question")
     @PostMapping("/questions/{questionId}/answers")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProductAnswerResponseDto> answerQuestion(
@@ -65,9 +63,7 @@ public class ProductQAController {
         return new ResponseEntity<>(answer, HttpStatus.CREATED);
     }
 
-    /**
-     * Vote an answer as helpful (public)
-     */
+    @Operation(summary = "Mark answer helpful", description = "Vote an answer as helpful")
     @PostMapping("/answers/{answerId}/helpful")
     public ResponseEntity<Void> markAnswerHelpful(@PathVariable Long answerId) {
         productQAService.markAnswerHelpful(answerId);

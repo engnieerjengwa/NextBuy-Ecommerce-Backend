@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 /**
  * REST controller for managing hero banners
  */
+@Tag(name = "Hero Banners", description = "Homepage hero banner management")
 @RestController
 @RequestMapping("/api/hero-banners")
 public class HeroBannerController {
@@ -22,20 +26,13 @@ public class HeroBannerController {
         this.heroBannerService = heroBannerService;
     }
 
-    /**
-     * Get all hero banners
-     * @return List of all hero banners
-     */
+    @Operation(summary = "Get all banners", description = "Retrieve all hero banners")
     @GetMapping
     public ResponseEntity<List<HeroBanner>> getAllHeroBanners() {
         return ResponseEntity.ok(heroBannerService.getAllHeroBanners());
     }
 
-    /**
-     * Get a hero banner by ID
-     * @param id The hero banner ID
-     * @return The hero banner, if found
-     */
+    @Operation(summary = "Get banner by ID", description = "Retrieve a specific hero banner")
     @GetMapping("/{id}")
     public ResponseEntity<HeroBanner> getHeroBannerById(@PathVariable Long id) {
         return heroBannerService.getHeroBannerById(id)
@@ -43,41 +40,26 @@ public class HeroBannerController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /**
-     * Get all active hero banners
-     * @return List of active hero banners
-     */
+    @Operation(summary = "Get active banners", description = "Retrieve all banners marked as active")
     @GetMapping("/active")
     public ResponseEntity<List<HeroBanner>> getActiveHeroBanners() {
         return ResponseEntity.ok(heroBannerService.getActiveHeroBanners());
     }
 
-    /**
-     * Get all currently active hero banners (based on dates)
-     * @return List of currently active hero banners
-     */
+    @Operation(summary = "Get current banners", description = "Retrieve banners currently active based on date range")
     @GetMapping("/current")
     public ResponseEntity<List<HeroBanner>> getCurrentlyActiveHeroBanners() {
         return ResponseEntity.ok(heroBannerService.getCurrentlyActiveHeroBanners());
     }
 
-    /**
-     * Create a new hero banner
-     * @param heroBanner The hero banner to create
-     * @return The created hero banner
-     */
+    @Operation(summary = "Create banner", description = "Create a new hero banner")
     @PostMapping
     public ResponseEntity<HeroBanner> createHeroBanner(@RequestBody HeroBanner heroBanner) {
         HeroBanner createdBanner = heroBannerService.createHeroBanner(heroBanner);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBanner);
     }
 
-    /**
-     * Update an existing hero banner
-     * @param id The hero banner ID
-     * @param heroBanner The updated hero banner data
-     * @return The updated hero banner
-     */
+    @Operation(summary = "Update banner", description = "Update an existing hero banner")
     @PutMapping("/{id}")
     public ResponseEntity<HeroBanner> updateHeroBanner(@PathVariable Long id, @RequestBody HeroBanner heroBanner) {
         try {
@@ -88,11 +70,7 @@ public class HeroBannerController {
         }
     }
 
-    /**
-     * Delete a hero banner
-     * @param id The hero banner ID
-     * @return No content if successful
-     */
+    @Operation(summary = "Delete banner", description = "Delete a hero banner")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteHeroBanner(@PathVariable Long id) {
         try {
@@ -103,11 +81,7 @@ public class HeroBannerController {
         }
     }
 
-    /**
-     * Update the display order of hero banners
-     * @param heroBannerIds List of hero banner IDs in the desired order
-     * @return No content if successful
-     */
+    @Operation(summary = "Update banner order", description = "Reorder hero banners by providing sorted IDs")
     @PutMapping("/order")
     public ResponseEntity<Void> updateHeroBannerOrder(@RequestBody List<Long> heroBannerIds) {
         try {
@@ -118,11 +92,7 @@ public class HeroBannerController {
         }
     }
 
-    /**
-     * Toggle the active status of a hero banner
-     * @param id The hero banner ID
-     * @return The updated hero banner
-     */
+    @Operation(summary = "Toggle banner active", description = "Toggle the active status of a hero banner")
     @PutMapping("/{id}/toggle-active")
     public ResponseEntity<HeroBanner> toggleHeroBannerActive(@PathVariable Long id) {
         try {

@@ -9,6 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Coupons", description = "Coupon validation and application")
 @RestController
 @RequestMapping("/api/coupons")
 public class CouponController {
@@ -19,6 +23,7 @@ public class CouponController {
         this.couponService = couponService;
     }
 
+    @Operation(summary = "Validate coupon", description = "Check if a coupon code is valid and return its details")
     @PostMapping("/validate")
     public ResponseEntity<CouponResponseDto> validateCoupon(
             @Valid @RequestBody CouponValidateRequestDto requestDto) {
@@ -26,6 +31,7 @@ public class CouponController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Apply coupon", description = "Apply a coupon code to the current cart")
     @PostMapping("/apply")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CouponResponseDto> applyCoupon(

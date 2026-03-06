@@ -11,8 +11,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.List;
 
+@Tag(name = "Orders", description = "Order tracking, cancellation, reorder, and status management")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api/orders")
 public class OrderLifecycleController {
@@ -23,9 +29,7 @@ public class OrderLifecycleController {
         this.orderLifecycleService = orderLifecycleService;
     }
 
-    /**
-     * Get order status timeline (auth required — customer must own the order)
-     */
+    @Operation(summary = "Get order tracking", description = "Retrieve the full status timeline for an order")
     @GetMapping("/{orderId}/tracking")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<OrderStatusHistoryResponseDto>> getOrderTracking(
@@ -34,9 +38,7 @@ public class OrderLifecycleController {
         return ResponseEntity.ok(history);
     }
 
-    /**
-     * Cancel an order (auth required — before SHIPPED status only)
-     */
+    @Operation(summary = "Cancel order", description = "Cancel an order before it has been shipped")
     @PatchMapping("/{orderId}/cancel")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrderResponseDto> cancelOrder(
@@ -47,9 +49,7 @@ public class OrderLifecycleController {
         return ResponseEntity.ok(order);
     }
 
-    /**
-     * Re-order from a previous order (auth required)
-     */
+    @Operation(summary = "Re-order", description = "Create a new order from a previous order's items")
     @PostMapping("/{orderId}/reorder")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<OrderResponseDto> reorder(
@@ -60,9 +60,7 @@ public class OrderLifecycleController {
         return ResponseEntity.ok(order);
     }
 
-    /**
-     * Update order status (admin only)
-     */
+    @Operation(summary = "Update order status", description = "Update the status of an order (admin only)")
     @PatchMapping("/{orderId}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrderResponseDto> updateOrderStatus(

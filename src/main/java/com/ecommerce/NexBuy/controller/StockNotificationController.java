@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Stock Notifications", description = "Out-of-stock restock notification subscriptions")
 @RestController
 @RequestMapping("/api/products")
 public class StockNotificationController {
@@ -19,9 +23,7 @@ public class StockNotificationController {
         this.stockNotificationService = stockNotificationService;
     }
 
-    /**
-     * Subscribe to back-in-stock notification for a product
-     */
+    @Operation(summary = "Subscribe to restock", description = "Subscribe to back-in-stock notification for a product")
     @PostMapping("/{productId}/notify-restock")
     public ResponseEntity<Map<String, String>> subscribe(
             @PathVariable Long productId,
@@ -33,9 +35,7 @@ public class StockNotificationController {
                 HttpStatus.CREATED);
     }
 
-    /**
-     * Check if an email is already subscribed for a product's restock notification
-     */
+    @Operation(summary = "Check subscription", description = "Check if an email is subscribed for restock notifications")
     @GetMapping("/{productId}/notify-restock")
     public ResponseEntity<Map<String, Boolean>> isSubscribed(
             @PathVariable Long productId,
@@ -44,9 +44,7 @@ public class StockNotificationController {
         return ResponseEntity.ok(Map.of("subscribed", subscribed));
     }
 
-    /**
-     * Unsubscribe from back-in-stock notification for a product
-     */
+    @Operation(summary = "Unsubscribe from restock", description = "Unsubscribe from back-in-stock notifications")
     @DeleteMapping("/{productId}/notify-restock")
     public ResponseEntity<Map<String, String>> unsubscribe(
             @PathVariable Long productId,

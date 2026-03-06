@@ -8,6 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Configuration", description = "Application configuration endpoints")
 @RestController
 @RequestMapping("/api/config")
 public class ConfigController {
@@ -15,9 +19,7 @@ public class ConfigController {
     @Value("${app.google.places.api-key}")
     private String googlePlacesApiKey;
 
-    /**
-     * Expose the Google Places API key for frontend address autocomplete
-     */
+    @Operation(summary = "Get Google Places API key", description = "Retrieve the API key for frontend address autocomplete")
     @GetMapping("/google-places-key")
     public ResponseEntity<Map<String, String>> getGooglePlacesApiKey() {
         return ResponseEntity.ok(Map.of("apiKey", googlePlacesApiKey));

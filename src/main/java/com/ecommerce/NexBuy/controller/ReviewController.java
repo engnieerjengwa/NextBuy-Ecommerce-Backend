@@ -15,6 +15,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Reviews", description = "Product reviews, ratings, and seller responses")
 @RestController
 @RequestMapping("/api")
 public class ReviewController {
@@ -25,9 +29,7 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    /**
-     * Get reviews for a product (public, paginated, optional rating filter)
-     */
+    @Operation(summary = "Get product reviews", description = "Retrieve paginated reviews for a product with optional rating filter")
     @GetMapping("/products/{productId}/reviews")
     public ResponseEntity<Page<ReviewResponseDto>> getReviewsByProduct(
             @PathVariable Long productId,
@@ -42,9 +44,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    /**
-     * Get rating distribution for a product (public)
-     */
+    @Operation(summary = "Get rating distribution", description = "Retrieve the star-rating breakdown for a product")
     @GetMapping("/products/{productId}/reviews/distribution")
     public ResponseEntity<RatingDistributionResponseDto> getRatingDistribution(
             @PathVariable Long productId) {
@@ -52,9 +52,7 @@ public class ReviewController {
         return ResponseEntity.ok(distribution);
     }
 
-    /**
-     * Submit a review for a product (auth required)
-     */
+    @Operation(summary = "Create review", description = "Submit a new review for a product")
     @PostMapping("/products/{productId}/reviews")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReviewResponseDto> createReview(
@@ -67,9 +65,7 @@ public class ReviewController {
         return new ResponseEntity<>(review, HttpStatus.CREATED);
     }
 
-    /**
-     * Update own review (auth required)
-     */
+    @Operation(summary = "Update review", description = "Update an existing review owned by the authenticated user")
     @PutMapping("/reviews/{reviewId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReviewResponseDto> updateReview(
@@ -81,9 +77,7 @@ public class ReviewController {
         return ResponseEntity.ok(review);
     }
 
-    /**
-     * Delete own review (auth required)
-     */
+    @Operation(summary = "Delete review", description = "Delete a review owned by the authenticated user")
     @DeleteMapping("/reviews/{reviewId}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> deleteReview(
@@ -94,18 +88,14 @@ public class ReviewController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Vote a review as helpful (public or auth - no restriction)
-     */
+    @Operation(summary = "Mark review helpful", description = "Vote a review as helpful")
     @PostMapping("/reviews/{reviewId}/helpful")
     public ResponseEntity<Void> markReviewHelpful(@PathVariable Long reviewId) {
         reviewService.markReviewHelpful(reviewId);
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Get reviews by the authenticated customer
-     */
+    @Operation(summary = "Get my reviews", description = "Retrieve all reviews submitted by the authenticated user")
     @GetMapping("/reviews/my")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Page<ReviewResponseDto>> getMyReviews(
@@ -115,9 +105,7 @@ public class ReviewController {
         return ResponseEntity.ok(reviews);
     }
 
-    /**
-     * Add a seller response to a review (admin/seller only)
-     */
+    @Operation(summary = "Respond to review", description = "Add a seller or admin response to a customer review")
     @PostMapping("/reviews/{reviewId}/respond")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ReviewResponseDto> respondToReview(

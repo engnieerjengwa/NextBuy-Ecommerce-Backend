@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Recommendations", description = "Frequently bought together product recommendations")
 @RestController
 @RequestMapping("/api/products")
 public class FrequentlyBoughtTogetherController {
@@ -17,6 +21,7 @@ public class FrequentlyBoughtTogetherController {
         this.frequentlyBoughtTogetherService = frequentlyBoughtTogetherService;
     }
 
+    @Operation(summary = "Get recommendations", description = "Retrieve products frequently bought together with the given product")
     @GetMapping("/{productId}/frequently-bought-together")
     public ResponseEntity<List<FrequentlyBoughtTogetherResponseDto>> getFrequentlyBoughtTogether(
             @PathVariable Long productId) {

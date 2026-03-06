@@ -11,6 +11,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Wishlist", description = "User wishlist management")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api/wishlist")
 @PreAuthorize("isAuthenticated()")
@@ -22,9 +28,7 @@ public class WishlistController {
         this.wishlistService = wishlistService;
     }
 
-    /**
-     * Get user's wishlist (auto-creates default if none exists)
-     */
+    @Operation(summary = "Get wishlist", description = "Retrieve the authenticated user's wishlist, auto-creating if none exists")
     @GetMapping
     public ResponseEntity<WishlistResponseDto> getWishlist(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -32,9 +36,7 @@ public class WishlistController {
         return ResponseEntity.ok(wishlist);
     }
 
-    /**
-     * Add a product to the wishlist
-     */
+    @Operation(summary = "Add to wishlist", description = "Add a product to the user's wishlist")
     @PostMapping("/items/{productId}")
     public ResponseEntity<WishlistResponseDto> addToWishlist(
             @PathVariable Long productId,
@@ -44,9 +46,7 @@ public class WishlistController {
         return new ResponseEntity<>(wishlist, HttpStatus.CREATED);
     }
 
-    /**
-     * Remove a product from the wishlist
-     */
+    @Operation(summary = "Remove from wishlist", description = "Remove a product from the user's wishlist")
     @DeleteMapping("/items/{productId}")
     public ResponseEntity<Void> removeFromWishlist(
             @PathVariable Long productId,
@@ -56,9 +56,7 @@ public class WishlistController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Check if a product is in the user's wishlist
-     */
+    @Operation(summary = "Check wishlist item", description = "Check if a product is in the user's wishlist")
     @GetMapping("/items/{productId}/check")
     public ResponseEntity<Map<String, Boolean>> isInWishlist(
             @PathVariable Long productId,

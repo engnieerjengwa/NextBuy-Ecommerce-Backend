@@ -13,6 +13,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Addresses", description = "Saved delivery addresses management")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api/addresses")
 @PreAuthorize("isAuthenticated()")
@@ -24,9 +30,7 @@ public class SavedAddressController {
         this.savedAddressService = savedAddressService;
     }
 
-    /**
-     * Get all saved addresses for the authenticated customer
-     */
+    @Operation(summary = "Get addresses", description = "Retrieve all saved addresses for the authenticated customer")
     @GetMapping
     public ResponseEntity<List<SavedAddressResponseDto>> getAddresses(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -34,9 +38,7 @@ public class SavedAddressController {
         return ResponseEntity.ok(addresses);
     }
 
-    /**
-     * Get a specific saved address
-     */
+    @Operation(summary = "Get address", description = "Retrieve a specific saved address by ID")
     @GetMapping("/{addressId}")
     public ResponseEntity<SavedAddressResponseDto> getAddress(
             @PathVariable Long addressId,
@@ -46,9 +48,7 @@ public class SavedAddressController {
         return ResponseEntity.ok(address);
     }
 
-    /**
-     * Save a new address
-     */
+    @Operation(summary = "Create address", description = "Save a new delivery address")
     @PostMapping
     public ResponseEntity<SavedAddressResponseDto> createAddress(
             @Valid @RequestBody SavedAddressRequestDto requestDto,
@@ -58,9 +58,7 @@ public class SavedAddressController {
         return new ResponseEntity<>(address, HttpStatus.CREATED);
     }
 
-    /**
-     * Update an existing saved address
-     */
+    @Operation(summary = "Update address", description = "Update an existing saved address")
     @PutMapping("/{addressId}")
     public ResponseEntity<SavedAddressResponseDto> updateAddress(
             @PathVariable Long addressId,
@@ -71,9 +69,7 @@ public class SavedAddressController {
         return ResponseEntity.ok(address);
     }
 
-    /**
-     * Delete a saved address
-     */
+    @Operation(summary = "Delete address", description = "Remove a saved address")
     @DeleteMapping("/{addressId}")
     public ResponseEntity<Void> deleteAddress(
             @PathVariable Long addressId,
@@ -83,9 +79,7 @@ public class SavedAddressController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Set an address as the default
-     */
+    @Operation(summary = "Set default address", description = "Mark an address as the default delivery address")
     @PutMapping("/{addressId}/default")
     public ResponseEntity<SavedAddressResponseDto> setDefaultAddress(
             @PathVariable Long addressId,

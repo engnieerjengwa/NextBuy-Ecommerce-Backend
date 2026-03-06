@@ -10,6 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Wallet", description = "Store credit wallet balance and transactions")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api/wallet")
 public class WalletController {
@@ -20,6 +26,7 @@ public class WalletController {
         this.walletService = walletService;
     }
 
+    @Operation(summary = "Get wallet", description = "Retrieve or create the store credit wallet for the authenticated user")
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<WalletResponseDto> getWallet(Authentication authentication) {

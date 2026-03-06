@@ -9,6 +9,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Invoices", description = "Order invoice PDF generation and download")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api")
 public class InvoiceController {
@@ -19,6 +25,7 @@ public class InvoiceController {
         this.invoiceService = invoiceService;
     }
 
+    @Operation(summary = "Download invoice", description = "Generate and download a PDF invoice for an order")
     @GetMapping("/orders/{orderId}/invoice")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<byte[]> downloadInvoice(

@@ -10,6 +10,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Referrals", description = "Referral program and invite code management")
+@SecurityRequirement(name = "Bearer Authentication")
 @RestController
 @RequestMapping("/api/referrals")
 public class ReferralController {
@@ -20,6 +26,7 @@ public class ReferralController {
         this.referralService = referralService;
     }
 
+    @Operation(summary = "Get referral info", description = "Retrieve the user's referral code and referral statistics")
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReferralResponseDto> getReferralInfo(Authentication authentication) {
@@ -28,6 +35,7 @@ public class ReferralController {
         return ResponseEntity.ok(info);
     }
 
+    @Operation(summary = "Apply referral code", description = "Apply a referral code from another user to earn rewards")
     @PostMapping("/apply")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ReferralResponseDto> applyReferralCode(

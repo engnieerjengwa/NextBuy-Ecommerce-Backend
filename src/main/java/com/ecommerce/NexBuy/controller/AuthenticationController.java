@@ -15,8 +15,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.Map;
 
+@Tag(name = "Authentication", description = "User registration, login, and token management")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -25,37 +29,28 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
     private final GoogleAuthService googleAuthService;
 
-    /**
-     * Login endpoint - authenticates user and returns JWT token
-     */
+    @Operation(summary = "Login", description = "Authenticate user and return JWT access + refresh tokens")
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequest) {
         AuthResponseDto authResponse = authenticationService.login(loginRequest);
         return ResponseEntity.ok(authResponse);
     }
 
-    /**
-     * Register endpoint - creates new user account
-     * Default role is CUSTOMER if not specified
-     */
+    @Operation(summary = "Register", description = "Create a new customer account")
     @PostMapping("/register")
     public ResponseEntity<MessageResponseDto> register(@Valid @RequestBody RegisterRequestDto registerRequest) {
         MessageResponseDto response = authenticationService.register(registerRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    /**
-     * Google OAuth login endpoint - authenticates with Google ID token
-     */
+    @Operation(summary = "Google OAuth login", description = "Authenticate with a Google ID token")
     @PostMapping("/google")
     public ResponseEntity<AuthResponseDto> googleLogin(@Valid @RequestBody GoogleAuthRequestDto request) {
         AuthResponseDto authResponse = googleAuthService.authenticateWithGoogle(request.getCredential());
         return ResponseEntity.ok(authResponse);
     }
 
-    /**
-     * Refresh token endpoint - exchanges refresh token for new access token
-     */
+    @Operation(summary = "Refresh token", description = "Exchange a refresh token for a new access token")
     @PostMapping("/refresh-token")
     public ResponseEntity<AuthResponseDto> refreshToken(@RequestBody Map<String, String> request) {
         String refreshToken = request.get("refreshToken");
@@ -66,9 +61,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(authResponse);
     }
 
-    /**
-     * Get current user info - requires authentication
-     */
+    @Operation(summary = "Get current user", description = "Retrieve the authenticated user's profile information")
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Map<String, Object>> getCurrentUser(Authentication authentication) {
@@ -85,9 +78,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(userInfo);
     }
 
-    /**
-     * Admin-only: Register a seller or admin account
-     */
+    @Operation(summary = "Register privileged user", description = "Admin-only: create a seller or admin account")
     @PostMapping("/register-privileged")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponseDto> registerPrivileged(@Valid @RequestBody RegisterRequestDto registerRequest) {

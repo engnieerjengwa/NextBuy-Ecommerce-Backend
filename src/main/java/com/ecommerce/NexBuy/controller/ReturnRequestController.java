@@ -9,6 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name = "Returns", description = "Return request submission and status tracking")
 @RestController
 @RequestMapping("/api/returns")
 public class ReturnRequestController {
@@ -19,11 +23,7 @@ public class ReturnRequestController {
         this.returnRequestService = returnRequestService;
     }
 
-    /**
-     * Create a new return request
-     * @param returnRequestRequestDto the return request data
-     * @return the created return request
-     */
+    @Operation(summary = "Create return request", description = "Submit a new return request for an order")
     @PostMapping
     public ResponseEntity<ReturnRequestResponseDto> createReturnRequest(
             @RequestBody ReturnRequestRequestDto returnRequestRequestDto) {
@@ -31,23 +31,14 @@ public class ReturnRequestController {
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
-    /**
-     * Get a return request by ID
-     * @param id the return request ID
-     * @return the return request
-     */
+    @Operation(summary = "Get return request", description = "Retrieve a return request by ID")
     @GetMapping("/{id}")
     public ResponseEntity<ReturnRequestResponseDto> getReturnRequestById(@PathVariable Long id) {
         ReturnRequestResponseDto responseDto = returnRequestService.getReturnRequestById(id);
         return ResponseEntity.ok(responseDto);
     }
 
-    /**
-     * Get all return requests for an order
-     * @param orderId the order ID
-     * @param pageable pagination information
-     * @return a page of return requests
-     */
+    @Operation(summary = "Get returns by order", description = "Retrieve all return requests for an order")
     @GetMapping("/order/{orderId}")
     public ResponseEntity<Page<ReturnRequestResponseDto>> getReturnRequestsByOrderId(
             @PathVariable Long orderId, Pageable pageable) {
@@ -55,12 +46,7 @@ public class ReturnRequestController {
         return ResponseEntity.ok(responseDtos);
     }
 
-    /**
-     * Get all return requests for a customer
-     * @param email the customer's email
-     * @param pageable pagination information
-     * @return a page of return requests
-     */
+    @Operation(summary = "Get returns by customer", description = "Retrieve all return requests for a customer by email")
     @GetMapping("/customer")
     public ResponseEntity<Page<ReturnRequestResponseDto>> getReturnRequestsByCustomerEmail(
             @RequestParam String email, Pageable pageable) {
@@ -68,12 +54,7 @@ public class ReturnRequestController {
         return ResponseEntity.ok(responseDtos);
     }
 
-    /**
-     * Update the status of a return request
-     * @param id the return request ID
-     * @param status the new status
-     * @return the updated return request
-     */
+    @Operation(summary = "Update return status", description = "Update the status of a return request")
     @PatchMapping("/{id}/status")
     public ResponseEntity<ReturnRequestResponseDto> updateReturnRequestStatus(
             @PathVariable Long id, @RequestParam String status) {
